@@ -11,9 +11,18 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
+        test: /\.[jt]sx?$/,
         exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              ['@babel/preset-env', { targets: { browsers: ['last 2 versions'] } }],
+              ['@babel/preset-react', { runtime: 'automatic' }],
+              '@babel/preset-typescript',
+            ],
+          },
+        },
       },
       {
         test: /\.css$/,
@@ -46,4 +55,5 @@ module.exports = {
     },
   },
   mode: process.env.NODE_ENV || 'development',
+  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
 };

@@ -1,17 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import './MapView.css';
 
-interface Listing {
+interface ListingMap {
   id: number;
   title: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   price: number;
 }
 
 interface MapViewProps {
-  listings: Listing[];
-  onMarkerClick?: (listing: Listing) => void;
+  listings: ListingMap[];
+  onMarkerClick?: (listing: ListingMap) => void;
 }
 
 const MapView: React.FC<MapViewProps> = ({ listings, onMarkerClick }) => {

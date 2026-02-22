@@ -32,7 +32,8 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/listings');
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://omnivation-api-81002a93597c.herokuapp.com';
+      const response = await fetch(`${apiUrl}/api/listings`);
       if (!response.ok) throw new Error('Erreur lors du chargement des annonces');
       const data = await response.json();
       setListings(data || []);
@@ -84,7 +85,7 @@ const App: React.FC = () => {
     listing.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleMarkerClick = (listing: Listing) => {
+  const handleMarkerClick = (listing: any) => {
     console.log('Clicked listing:', listing);
   };
 
@@ -97,7 +98,7 @@ const App: React.FC = () => {
         {error && <div className="error-message">{error}</div>}
         
         {!loading && filteredListings.length > 0 && (
-          <MapView listings={filteredListings} onMarkerClick={handleMarkerClick} />
+          <MapView listings={filteredListings as any} onMarkerClick={handleMarkerClick} />
         )}
         
         {loading ? (
