@@ -28,51 +28,66 @@ const App: React.FC = () => {
     fetchListings();
   }, []);
 
-  const fetchListings = async () => {
+  const fetchListings = async (searchLocation: string = '') => {
     setLoading(true);
     setError(null);
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'https://omnivation-api-81002a93597c.herokuapp.com';
-      const response = await fetch(`${apiUrl}/api/listings`);
+      
+      // Construire l'URL avec les paramètres de recherche
+      let url = `${apiUrl}/api/search`;
+      if (searchLocation) {
+        url += `?location=${encodeURIComponent(searchLocation)}`;
+      }
+      
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Erreur lors du chargement des annonces');
       const data = await response.json();
-      setListings(data || []);
+      
+      // Transformer les données pour ajouter les champs manquants
+      const transformedListings = (data.listings || []).map((listing: any) => ({
+        ...listing,
+        image: listing.image || `https://via.placeholder.com/300x200?text=${encodeURIComponent(listing.title)}`,
+        agency: 'Agence Immobilière',
+      }));
+      
+      setListings(transformedListings);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       // Données de démonstration
       setListings([
         {
           id: 1,
-          title: 'Appartement 3 pièces à Paris',
+          title: 'Appartement 2 pièces Cannes',
           price: 450000,
-          location: 'Paris 15e',
-          bedrooms: 3,
+          location: 'Cannes, France',
+          bedrooms: 2,
           bathrooms: 1,
           area: 65,
-          image: 'https://via.placeholder.com/300x200?text=Appartement+1',
-          agency: 'Agence Immobilière Paris',
+          image: 'https://via.placeholder.com/300x200?text=Cannes',
+          agency: 'Agence Immobilière',
         },
         {
           id: 2,
-          title: 'Maison 4 pièces en Île-de-France',
-          price: 650000,
-          location: 'Versailles',
+          title: 'Villa 4 pièces Antibes',
+          price: 850000,
+          location: 'Antibes, France',
           bedrooms: 4,
-          bathrooms: 2,
-          area: 120,
-          image: 'https://via.placeholder.com/300x200?text=Maison+1',
-          agency: 'Agence Versailles Immobilier',
+          bathrooms: 3,
+          area: 200,
+          image: 'https://via.placeholder.com/300x200?text=Antibes',
+          agency: 'Agence Immobilière',
         },
         {
           id: 3,
-          title: 'Studio à Lyon',
-          price: 180000,
-          location: 'Lyon 2e',
+          title: 'Studio Paris 5e',
+          price: 350000,
+          location: 'Paris 5e, France',
           bedrooms: 1,
           bathrooms: 1,
-          area: 35,
-          image: 'https://via.placeholder.com/300x200?text=Studio+1',
-          agency: 'Agence Lyon Immobilier',
+          area: 25,
+          image: 'https://via.placeholder.com/300x200?text=Paris',
+          agency: 'Agence Immobilière',
         },
       ]);
     } finally {
@@ -80,20 +95,30 @@ const App: React.FC = () => {
     }
   };
 
-  const filteredListings = listings.filter(listing =>
-    listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    listing.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Quand le terme de recherche change, faire une nouvelle requête à l'API
+  useEffect(() => {
+    if (searchTerm) {
+      fetchListings(searchTerm);
+    } else {
+      fetchListings();
+    }
+  }, [searchTerm]);
+
+  const filteredListings = listings;
 
   const handleMarkerClick = (listing: any) => {
     console.log('Clicked listing:', listing);
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
   };
 
   return (
     <div className="app">
       <Header />
       <main className="main-content">
-        <SearchBar onSearch={setSearchTerm} />
+        <SearchBar onSearch={handleSearch} />
         
         {error && <div className="error-message">{error}</div>}
         
