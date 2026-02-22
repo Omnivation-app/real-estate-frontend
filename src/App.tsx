@@ -3,6 +3,7 @@ import './App.css';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ListingCard from './components/ListingCard';
+import MapView from './components/MapView';
 import Footer from './components/Footer';
 
 interface Listing {
@@ -83,6 +84,10 @@ const App: React.FC = () => {
     listing.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleMarkerClick = (listing: Listing) => {
+    console.log('Clicked listing:', listing);
+  };
+
   return (
     <div className="app">
       <Header />
@@ -90,6 +95,10 @@ const App: React.FC = () => {
         <SearchBar onSearch={setSearchTerm} />
         
         {error && <div className="error-message">{error}</div>}
+        
+        {!loading && filteredListings.length > 0 && (
+          <MapView listings={filteredListings} onMarkerClick={handleMarkerClick} />
+        )}
         
         {loading ? (
           <div className="loading">Chargement des annonces...</div>
